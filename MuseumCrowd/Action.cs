@@ -11,7 +11,7 @@ namespace MuseumCrowd
         /// <summary>
         /// Время действия
         /// </summary>
-        public DateTime Time;
+        public DateTime Time=DateTime.MaxValue;
         /// <summary>
         /// Сумма входящих и выходящих посетителей (Value=IN-OUT)
         /// </summary>

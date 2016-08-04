@@ -28,22 +28,17 @@ namespace MuseumCrowdTest
             list.Add(new TimePair(firstTime.AddHours(6), firstTime.AddHours(9))); // 3
             list.Add(new TimePair(firstTime.AddHours(7), firstTime.AddHours(9).AddMinutes(50))); // 4
             list.Add(new TimePair(firstTime.AddHours(8), firstTime.AddHours(9).AddMinutes(40))); // 5
-            
-            TimePair actual=new TimePair(firstTime.AddHours(8)
+
+            TimePair expected = new TimePair(firstTime.AddHours(8)
                 , firstTime.AddHours(9));
-            ICrowd crowd = new CrowdOpt(list);
-            GetPeriod(list, actual, crowd);
-            crowd = new CrowdBrutForce(list);
-            GetPeriod(list, actual, crowd);
-            crowd = new CrowdMulty(list);
-            GetPeriod(list, actual, crowd);
+            Compare(expected, CrowdHelper.GetPeriod(list));
         }
 
         /// <summary>
         /// Один пик посещаемости
         /// </summary>
         [TestMethod]
-        public void TestGeneralOpt()
+        public void TestGeneral()
         {
             List<TimePair> list = new List<TimePair>();
             DateTime firstTime = DateTime.Parse("2016-01-01");
@@ -56,16 +51,25 @@ namespace MuseumCrowdTest
                 , firstTime.AddHours(4).AddMinutes(20))); // 
             TimePair expected = new TimePair(firstTime.AddHours(4).AddMinutes(10)
                 , firstTime.AddHours(4).AddMinutes(20));
-            
-            GetPeriod(list, expected, new CrowdOpt(list));
-            GetPeriod(list, expected, new CrowdBrutForce(list));
-            GetPeriod(list, expected, new CrowdMulty(list));
+
+            Compare(expected, CrowdHelper.GetPeriod(list));
         }
+   
+
         /// <summary>
-        /// Тестируем CrowdMulty данными, где есть одновременные события
+        /// Пустой музей
         /// </summary>
         [TestMethod]
-        public void TestCrowdMulty()
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void TestEmpty()
+        {
+            List<TimePair> list = new List<TimePair>();
+            TimePair expected = new TimePair(DateTime.MinValue, DateTime.MaxValue);
+            Compare(expected, CrowdHelper.GetPeriod(list));
+        }
+
+        [TestMethod]
+        public void TestOneMore()
         {
             List<TimePair> list = new List<TimePair>();
             DateTime firstTime = DateTime.Parse("2016-01-01");
@@ -82,35 +86,10 @@ namespace MuseumCrowdTest
 
             TimePair expected = new TimePair(firstTime.AddHours(8)
                 , firstTime.AddHours(9));
-
-            GetPeriod(list, expected, new CrowdMulty(list));
+            TimePair actual=CrowdHelper.GetPeriod(list);
+            Compare(expected, actual);
         }
 
-        /// <summary>
-        /// Пустой музей
-        /// </summary>
-        [TestMethod]
-        public void TestEmpty()
-        {
-            List<TimePair> list = new List<TimePair>();
-            TimePair expected = new TimePair(DateTime.MinValue, DateTime.MaxValue);
-            GetPeriod(list, expected, new CrowdMulty(list));
-            GetPeriod(list, expected, new CrowdBrutForce(list));
-            GetPeriod(list, expected, new CrowdOpt(list));
-        }
-
-        /// <summary>
-        /// Запускает тестируемый метод и сравнивает резултаты
-        /// </summary>
-        /// <param name="list">List &ltTimePair&qt </param>
-        /// <param name="actual">TimePair - "ответ" </param>
-        /// <param name="crowd"> ICrowd Тестируемый класс</param>
-        private static void GetPeriod(List<TimePair> list, TimePair expected,ICrowd crowd)
-        {
-            
-            TimePair result = crowd.GetPeriod();
-            Compare(expected,result);
-        }
 
         /// <summary>
         /// Сравнивает результаты

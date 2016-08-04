@@ -15,13 +15,19 @@ class ListNode<T> {
 namespace QueueAdv
 {
     /// <summary>
-    /// Веселая очередь, умеет только добавлять в конец,
-    /// забирать первого и посмотреть первого
+    /// "Веселая очередь", умеет только добавлять в конец,
+    /// забирать первого и посмотреть первого.
+    /// Особенность - readonly Nodes.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Queue<T> : IQueue<T>
     {
+        /// <summary>
+        /// Очередь
+        /// </summary>
         ListNode<T> headNode=null;
+        ListNode<T> tailNode = null;
+        
         /// <summary>
         /// Конструктор по умолчанию
         /// </summary>
@@ -44,7 +50,12 @@ namespace QueueAdv
         /// <param name="node">T - добавляемое значение</param>
         public void Enqueue(T node)
         {
-            ListNode<T> newNode=new ListNode<T>(node, headNode);
+           
+            if (tailNode != null)
+            {
+                headNode = Uturn(tailNode);
+            }
+            ListNode<T> newNode = new ListNode<T>(node, headNode);
                 headNode = newNode;
         }
 
@@ -54,45 +65,40 @@ namespace QueueAdv
         /// <returns>T - забирамое значение</returns>
         public T Dequeue()
         {
-            T result;
-            if (headNode == null) // Поступаем так-же, как и в существующем прототипе
-                throw new InvalidOperationException();
-          if (headNode.Next == null) // Вдруг только один элемент в очереди
+            if (headNode != null)
             {
-                result= headNode.Value;
-                headNode = null;
-                return result;
-            } 
-            result = Uturn(true).Value;
-            Uturn(false);
+                tailNode = Uturn(headNode);
+            }
+            T result;
+            if (tailNode != null)
+            {
+                result = tailNode.Value;
+                tailNode = tailNode.Next;
+            }
+            else
+                throw new InvalidOperationException();
             return result;
         }
+        
 
         /// <summary>
         /// разворачиваем очередь
         /// </summary>
-        /// <param name="forgetLastNode">Если параметр true, значит мы "достаем" последний элемент из очереди,
-        /// иначе просто разворачиваем</param>
         /// <returns>ListNode<T></returns>
-        public ListNode<T> Uturn(bool forgetLastNode)
+        public ListNode<T> Uturn(ListNode<T> node)
         {
-            ListNode<T> lastNode;
-            lock (headNode)     // Неизменяемые списки часто применяют для потоковой безопастности, 
-            {                   // поставлю здесь блокировку , но что-бы в полной мере назвать эту библиотеку потокобезопасной
-                                // нужны тесты на потокобезопастность - это отдельная тема, в задании небыло указано на это.
-                lastNode = headNode;
-                headNode = new ListNode<T>(headNode.Value, null);
-                while (lastNode.Next != null)
+            if (node == headNode) headNode = null;
+            else
+                tailNode = null;
+            ListNode<T> outNode;
+                outNode = node;
+                node = new ListNode<T>(node.Value, null);
+                while (outNode.Next != null)
                 {
-                    lastNode = lastNode.Next;
-                    if (lastNode.Next == null & forgetLastNode)
-                    {
-                        break;
-                    }
-                    headNode = new ListNode<T>(lastNode.Value, headNode);
+                    outNode = outNode.Next;
+                    node = new ListNode<T>(outNode.Value, node);
                 }
-            }
-            return lastNode;
+            return node;
         }
 
         /// <summary>
@@ -101,12 +107,20 @@ namespace QueueAdv
         /// <returns>ListNode<T> начальный элемент </returns>
         public T Peek()
         {
-            if (headNode == null)
+            if (headNode == null & tailNode==null)
                 throw new InvalidOperationException("Queue is empty");
-            ListNode<T> stepNode = headNode;
-            while (stepNode.Next != null)
-                stepNode = stepNode.Next;
-            return stepNode.Value;
+            if (headNode != null)
+            {
+                tailNode = Uturn(headNode);
+            }
+            T result;
+            if (tailNode != null)
+            {
+                result = tailNode.Value;
+            }
+            else
+                throw new InvalidOperationException();
+            return result;
         }
     }
 }

@@ -89,7 +89,7 @@ namespace QueueTest
             Queue<String> queue=new Queue<String>(testNode);
             Assert.AreEqual(queue.Peek(), testNode);
             Assert.AreEqual(queue.Dequeue(), testNode);
-            Assert.AreEqual(queue.Peek(), testNode); // тут нен ничего
+            Assert.AreEqual(queue.Peek(), testNode); // тут нет ничего
         }
 
         /// <summary>

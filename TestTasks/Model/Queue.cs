@@ -25,15 +25,15 @@ namespace QueueAdv
         /// <summary>
         /// Очередь
         /// </summary>
-        ListNode<T> headNode=null;
+        ListNode<T> headNode = null;
         ListNode<T> tailNode = null;
-        
+
         /// <summary>
         /// Конструктор по умолчанию
         /// </summary>
         public Queue()
         {
-            
+
         }
         /// <summary>
         /// Конструктор, ставит в очередь первый элемент
@@ -50,13 +50,13 @@ namespace QueueAdv
         /// <param name="node">T - добавляемое значение</param>
         public void Enqueue(T node)
         {
-           
+            // Если tailNode не нулл, значит очередь не пустая и её надо развернуть
             if (tailNode != null)
             {
                 headNode = Uturn(tailNode);
             }
             ListNode<T> newNode = new ListNode<T>(node, headNode);
-                headNode = newNode;
+            headNode = newNode;
         }
 
         /// <summary>
@@ -65,21 +65,11 @@ namespace QueueAdv
         /// <returns>T - забирамое значение</returns>
         public T Dequeue()
         {
-            if (headNode != null)
-            {
-                tailNode = Uturn(headNode);
-            }
-            T result;
-            if (tailNode != null)
-            {
-                result = tailNode.Value;
-                tailNode = tailNode.Next;
-            }
-            else
-                throw new InvalidOperationException();
-            return result;
+            var result = PeekNode();
+            tailNode = result.Next;
+            return result.Value;
         }
-        
+
 
         /// <summary>
         /// разворачиваем очередь
@@ -91,13 +81,13 @@ namespace QueueAdv
             else
                 tailNode = null;
             ListNode<T> outNode;
-                outNode = node;
-                node = new ListNode<T>(node.Value, null);
-                while (outNode.Next != null)
-                {
-                    outNode = outNode.Next;
-                    node = new ListNode<T>(outNode.Value, node);
-                }
+            outNode = node;
+            node = new ListNode<T>(node.Value, null);
+            while (outNode.Next != null)
+            {
+                outNode = outNode.Next;
+                node = new ListNode<T>(outNode.Value, node);
+            }
             return node;
         }
 
@@ -107,20 +97,22 @@ namespace QueueAdv
         /// <returns>ListNode<T> начальный элемент </returns>
         public T Peek()
         {
-            if (headNode == null & tailNode==null)
-                throw new InvalidOperationException("Queue is empty");
+            return PeekNode().Value;
+        }
+
+        private ListNode<T> PeekNode()
+        {
+            if (tailNode != null)
+                return tailNode;
+            else
             if (headNode != null)
             {
                 tailNode = Uturn(headNode);
             }
-            T result;
-            if (tailNode != null)
-            {
-                result = tailNode.Value;
-            }
             else
-                throw new InvalidOperationException();
-            return result;
+                throw new InvalidOperationException("Queue is empty");
+            return tailNode;
         }
+
     }
 }
